@@ -30,8 +30,10 @@ async def main():
         anthropic_api_key=ANTHROPIC_API_KEY,
     )
 
-    # Playwright Chromium verwenden (kein externer Browser noetig)
-    browser_config = BrowserConfig(headless=False)
+    browser_config = BrowserConfig(
+        headless=False,
+        chrome_instance_path=r"C:\Users\flori\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe",
+    )
     browser = Browser(config=browser_config)
 
     aufgabe = f"""
