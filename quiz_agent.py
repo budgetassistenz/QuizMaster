@@ -50,8 +50,8 @@ FLASH_MODE = True
 MAX_ACTIONS_PER_STEP = 4
 
 # Wie viele vergangene Schritte an die KI mitgeschickt werden. Kleiner = weniger
-# Tokens pro Aufruf. Bei einem Quiz reichen wenige Schritte Kontext.
-MAX_HISTORY_ITEMS = 5
+# Tokens pro Aufruf. browser-use verlangt einen Wert GROESSER als 5 (oder None).
+MAX_HISTORY_ITEMS = 6
 # ----------------------------------------------------------------------------
 
 # Optionaler manueller Chromium-Pfad. Standardmaessig leer lassen, damit
