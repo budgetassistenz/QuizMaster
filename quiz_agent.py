@@ -30,32 +30,33 @@ except ImportError as import_fehler:
     sys.exit(1)
 
 # ----------------------------------------------------------------------------
-#  EINSTELLUNGEN: ZUVERLAESSIGKEIT vs. GESCHWINDIGKEIT
+#  EIN SCHALTER FUER ALLES
 # ----------------------------------------------------------------------------
-# Erfahrung aus den Tests: Haiku + Flash + ohne Vision war zwar blitzschnell,
-# hat das Quiz aber NICHT wirklich geloest, sondern den Abschluss erfunden
-# (browser-use-Richter: "fabricated the results"). Darum stehen die Schalter
-# jetzt auf ZUVERLAESSIG. Erst wenn ein Lauf echt funktioniert, kann man
-# vorsichtig wieder Richtung Speed drehen (siehe Hinweise unten).
+#   True  = SCHNELL & GUENSTIG (Haiku + Flash, ohne Vision).
+#           Ideal fuer einfache "Durchklick"-Kurse wie diesen reteach-Kurs,
+#           wo man nur Lektionen ansehen und "Weiter" klicken muss.
+#           -> minimale Tokens, hohes Tempo.
+#           Achtung: Der Agent kann Inhalte "erraten" und seinen Bericht
+#           ausschmuecken. Fuer echte Wissensfragen weniger zuverlaessig.
+#
+#   False = ZUVERLAESSIG (Sonnet + Vision, ohne Flash).
+#           Langsamer und teurer, liest und prueft wirklich jede Seite.
+#           Nimm dies fuer Kurse mit echten, benoteten Fragen.
+SPEED_MODE = True
+# ----------------------------------------------------------------------------
 
-# Sonnet ist genauer und "ehrlicher" als Haiku. Fuer reines Tempo spaeter
-# "claude-haiku-4-5-20251001" testen - aber nur, wenn die Ergebnisse stimmen.
-MODELL = "claude-sonnet-4-5"
+if SPEED_MODE:
+    MODELL = "claude-haiku-4-5-20251001"
+    USE_VISION = False
+    FLASH_MODE = True
+else:
+    MODELL = "claude-sonnet-4-5"
+    USE_VISION = True
+    FLASH_MODE = False
 
-# True = Agent darf Screenshots sehen. WICHTIG: Bei False wollte das Modell
-# trotzdem Screenshots machen -> Absturz. Fuer echtes Lesen/Pruefen des Quiz
-# auf True lassen. (Spart weniger Tokens, liefert aber echte Ergebnisse.)
-USE_VISION = True
-
-# False = Agent denkt vor jeder Aktion nach. Verhindert das "Erfinden" von
-# Ergebnissen. Nur auf True stellen, wenn Tempo wichtiger als Korrektheit ist.
-FLASH_MODE = False
-
-# Mehrere Aktionen pro LLM-Aufruf erlauben -> weniger Hin und Her.
+# Mehrere Aktionen pro LLM-Aufruf -> weniger Hin und Her.
 MAX_ACTIONS_PER_STEP = 4
-
-# Anzahl vergangener Schritte im Kontext. None = voller Verlauf (genauer,
-# mehr Tokens). Wert muss None ODER groesser als 5 sein.
+# Anzahl vergangener Schritte im Kontext. None = voller Verlauf, sonst > 5.
 MAX_HISTORY_ITEMS = 10
 # ----------------------------------------------------------------------------
 
