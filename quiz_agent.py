@@ -17,19 +17,8 @@ QUIZ_URL          = os.getenv("QUIZ_URL")
 QUIZ_USERNAME     = os.getenv("QUIZ_USERNAME")
 QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 
-from langchain_anthropic import ChatAnthropic as _ChatAnthropic
+from langchain_anthropic import ChatAnthropic
 from browser_use import Agent, Browser, BrowserProfile
-
-
-# Fix: neuere browser-use Versionen erwarten llm.provider und llm.model_name
-class ChatAnthropic(_ChatAnthropic):
-    @property
-    def provider(self):
-        return "anthropic"
-
-    @property
-    def model_name(self):
-        return self.model
 
 
 async def main():
@@ -39,6 +28,9 @@ async def main():
         model="claude-sonnet-4-5",
         anthropic_api_key=ANTHROPIC_API_KEY,
     )
+    # Fix: browser-use 0.12.x erwartet provider und model_name
+    object.__setattr__(llm, 'provider', 'anthropic')
+    object.__setattr__(llm, 'model_name', 'claude-sonnet-4-5')
 
     browser_profile = BrowserProfile(headless=False)
     browser = Browser(browser_profile=browser_profile)
