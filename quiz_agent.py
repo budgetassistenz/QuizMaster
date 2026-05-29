@@ -17,25 +17,36 @@ QUIZ_URL          = os.getenv("QUIZ_URL")
 QUIZ_USERNAME     = os.getenv("QUIZ_USERNAME")
 QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 
-from langchain_anthropic import ChatAnthropic
-from browser_use import Agent, Browser, BrowserProfile
+# WICHTIG: browser-use 0.12.x bringt einen EIGENEN ChatAnthropic-Wrapper mit,
+# der bereits 'provider' und 'model_name' besitzt. Damit entfallen alle
+# Pydantic-Hacks (object.__setattr__) UND der Patch in cloud_events.py.
+# NICHT langchain_anthropic verwenden!
+from browser_use import Agent, Browser, BrowserProfile, ChatAnthropic
+
+# Modell-ID anpassen, falls Anthropic die Bezeichnung aendert.
+MODELL = "claude-sonnet-4-5"
+
+# Optionaler manueller Chromium-Pfad. Standardmaessig leer lassen, damit
+# Playwright den selbst installierten Browser aufloest. Nur setzen, wenn die
+# Datei wirklich existiert -> verhindert [WinError 2].
+CHROMIUM_PFAD = os.getenv("CHROMIUM_PATH")  # z.B. ...\chrome-win64\chrome.exe
 
 
 async def main():
     input("Druecke ENTER um den Agenten zu starten...")
 
     llm = ChatAnthropic(
-        model="claude-sonnet-4-5",
-        anthropic_api_key=ANTHROPIC_API_KEY,
+        model=MODELL,
+        api_key=ANTHROPIC_API_KEY,
     )
-    # Fix: browser-use 0.12.x erwartet provider und model_name
-    object.__setattr__(llm, 'provider', 'anthropic')
-    object.__setattr__(llm, 'model_name', 'claude-sonnet-4-5')
 
-    browser_profile = BrowserProfile(
-        headless=False,
-        executable_path=r"C:\Users\flori\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe",
-    )
+    profil_kwargs = {"headless": False}
+    if CHROMIUM_PFAD and os.path.isfile(CHROMIUM_PFAD):
+        profil_kwargs["executable_path"] = CHROMIUM_PFAD
+    elif CHROMIUM_PFAD:
+        print(f"WARNUNG: CHROMIUM_PATH existiert nicht, nutze Playwright-Standard: {CHROMIUM_PFAD}")
+
+    browser_profile = BrowserProfile(**profil_kwargs)
     browser = Browser(browser_profile=browser_profile)
 
     aufgabe = f"""
