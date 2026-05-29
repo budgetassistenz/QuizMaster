@@ -27,10 +27,12 @@ QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 
 from langchain_anthropic import ChatAnthropic
-from browser_use import Agent, Browser, BrowserProfile
+from browser_use import Agent, Browser, BrowserConfig
 
 
 async def main():
+    input("Drücke ENTER um den Agenten zu starten...")
+
     # --- LLM initialisieren ---
     llm = ChatAnthropic(
         model="claude-sonnet-4-5",
@@ -38,11 +40,11 @@ async def main():
     )
 
     # --- Browser konfigurieren (sichtbar, Brave) ---
-    browser_profile = BrowserProfile(
+    browser_config = BrowserConfig(
         headless=False,
-        executable_path=BRAVE_PATH,
+        browser_binary_path=BRAVE_PATH,
     )
-    browser = Browser(browser_profile=browser_profile)
+    browser = Browser(config=browser_config)
 
     # --- Aufgabe für den Agenten ---
     aufgabe = f"""
