@@ -38,11 +38,10 @@ except ImportError as import_fehler:
 #           Nur fuer triviale Klick-Kurse und nur, wenn du das Ergebnis selbst
 #           im Dashboard nachpruefst.
 #
-#   False = ZUVERLAESSIG (Sonnet + Vision, ohne Flash).  <-- EMPFOHLEN
+#   False = ZUVERLAESSIG (Sonnet + Vision, ohne Flash).
 #           Langsamer und teurer, aber der Agent arbeitet jede Lektion wirklich
-#           durch und erfindet nichts. Das willst du, wenn der Agent den Kurs
-#           tatsaechlich selbst machen soll.
-SPEED_MODE = False
+#           durch und erfindet nichts.
+SPEED_MODE = True
 # ----------------------------------------------------------------------------
 
 if SPEED_MODE:
