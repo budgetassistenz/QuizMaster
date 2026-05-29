@@ -29,26 +29,29 @@ except ImportError as import_fehler:
     print("\nLOESUNG: Fuehre zuerst 'setup.bat' aus (Doppelklick).")
     sys.exit(1)
 
-# Modell-ID anpassen, falls Anthropic die Bezeichnung aendert.
-# Tipp: Fuer maximale Geschwindigkeit "claude-haiku-4-5" probieren (schneller,
-# aber bei kniffligen Fragen evtl. ungenauer als Sonnet).
-MODELL = "claude-sonnet-4-5"
+# ----------------------------------------------------------------------------
+#  GESCHWINDIGKEITS- / TOKEN-SPAR-EINSTELLUNGEN (alles auf Maximum)
+# ----------------------------------------------------------------------------
+# Modell: Haiku ist am schnellsten und guenstigsten.
+# Falls Antworten zu ungenau werden -> auf "claude-sonnet-4-5" zurueckstellen.
+MODELL = "claude-haiku-4-5-20251001"
 
-# ----------------------------------------------------------------------------
-#  GESCHWINDIGKEITS-EINSTELLUNGEN
-# ----------------------------------------------------------------------------
 # False = KEINE Screenshots, Agent arbeitet nur ueber den DOM/HTML.
-#         -> Deutlich schneller und guenstiger. Empfohlen fuer Text-Quizze.
-#         Nur auf True stellen, wenn der Agent visuelle Inhalte (Bilder) braucht.
+#         -> Deutlich schneller und guenstiger. Nur auf True, wenn visuelle
+#         Inhalte (Bilder) zwingend gebraucht werden.
 USE_VISION = False
 
 # True = "Flash-Modus": ueberspringt internes Nachdenken/Evaluieren.
-#        Noch schneller, kann aber die Antwort-Qualitaet senken.
-#        Bei falschen Antworten einfach wieder auf False stellen.
-FLASH_MODE = False
+#        Maximal schnell + wenig Tokens, kann aber die Qualitaet senken.
+#        Bei falschen Antworten wieder auf False stellen.
+FLASH_MODE = True
 
 # Mehrere Aktionen pro LLM-Aufruf erlauben -> weniger Hin und Her.
 MAX_ACTIONS_PER_STEP = 4
+
+# Wie viele vergangene Schritte an die KI mitgeschickt werden. Kleiner = weniger
+# Tokens pro Aufruf. Bei einem Quiz reichen wenige Schritte Kontext.
+MAX_HISTORY_ITEMS = 5
 # ----------------------------------------------------------------------------
 
 # Optionaler manueller Chromium-Pfad. Standardmaessig leer lassen, damit
@@ -99,6 +102,7 @@ Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
         "use_vision": USE_VISION,
         "flash_mode": FLASH_MODE,
         "max_actions_per_step": MAX_ACTIONS_PER_STEP,
+        "max_history_items": MAX_HISTORY_ITEMS,
     }
     while True:
         try:
@@ -107,7 +111,7 @@ Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
         except TypeError as e:
             # Unbekannten Parameter aus der Fehlermeldung entfernen und erneut versuchen.
             entfernt = False
-            for option in ("max_actions_per_step", "flash_mode", "use_vision"):
+            for option in ("max_history_items", "max_actions_per_step", "flash_mode", "use_vision"):
                 if option in str(e) and option in agent_kwargs:
                     print(f"Hinweis: '{option}' wird von dieser browser-use-Version nicht unterstuetzt - wird ignoriert.")
                     del agent_kwargs[option]
