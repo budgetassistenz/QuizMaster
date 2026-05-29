@@ -18,8 +18,6 @@ QUIZ_URL          = os.getenv("QUIZ_URL")
 QUIZ_USERNAME     = os.getenv("QUIZ_USERNAME")
 QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 
-BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
-
 from langchain_anthropic import ChatAnthropic
 from browser_use import Agent, Browser, BrowserConfig
 
@@ -32,10 +30,8 @@ async def main():
         anthropic_api_key=ANTHROPIC_API_KEY,
     )
 
-    browser_config = BrowserConfig(
-        headless=False,
-        chrome_instance_path=BRAVE_PATH,
-    )
+    # Playwright Chromium verwenden (kein externer Browser noetig)
+    browser_config = BrowserConfig(headless=False)
     browser = Browser(config=browser_config)
 
     aufgabe = f"""
