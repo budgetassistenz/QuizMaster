@@ -30,7 +30,26 @@ except ImportError as import_fehler:
     sys.exit(1)
 
 # Modell-ID anpassen, falls Anthropic die Bezeichnung aendert.
+# Tipp: Fuer maximale Geschwindigkeit "claude-haiku-4-5" probieren (schneller,
+# aber bei kniffligen Fragen evtl. ungenauer als Sonnet).
 MODELL = "claude-sonnet-4-5"
+
+# ----------------------------------------------------------------------------
+#  GESCHWINDIGKEITS-EINSTELLUNGEN
+# ----------------------------------------------------------------------------
+# False = KEINE Screenshots, Agent arbeitet nur ueber den DOM/HTML.
+#         -> Deutlich schneller und guenstiger. Empfohlen fuer Text-Quizze.
+#         Nur auf True stellen, wenn der Agent visuelle Inhalte (Bilder) braucht.
+USE_VISION = False
+
+# True = "Flash-Modus": ueberspringt internes Nachdenken/Evaluieren.
+#        Noch schneller, kann aber die Antwort-Qualitaet senken.
+#        Bei falschen Antworten einfach wieder auf False stellen.
+FLASH_MODE = False
+
+# Mehrere Aktionen pro LLM-Aufruf erlauben -> weniger Hin und Her.
+MAX_ACTIONS_PER_STEP = 4
+# ----------------------------------------------------------------------------
 
 # Optionaler manueller Chromium-Pfad. Standardmaessig leer lassen, damit
 # Playwright den selbst installierten Browser aufloest. Nur setzen, wenn die
@@ -70,8 +89,34 @@ Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
 5. Quiz abschliessen und Ergebnis ausgeben.
 """
 
+    # Agent mit Geschwindigkeits-Optionen bauen. Manche Optionen existieren je
+    # nach browser-use-Version nicht -> wir entfernen sie im Fehlerfall sauber,
+    # statt das Programm abstuerzen zu lassen.
+    agent_kwargs = {
+        "task": aufgabe,
+        "llm": llm,
+        "browser": browser,
+        "use_vision": USE_VISION,
+        "flash_mode": FLASH_MODE,
+        "max_actions_per_step": MAX_ACTIONS_PER_STEP,
+    }
+    while True:
+        try:
+            agent = Agent(**agent_kwargs)
+            break
+        except TypeError as e:
+            # Unbekannten Parameter aus der Fehlermeldung entfernen und erneut versuchen.
+            entfernt = False
+            for option in ("max_actions_per_step", "flash_mode", "use_vision"):
+                if option in str(e) and option in agent_kwargs:
+                    print(f"Hinweis: '{option}' wird von dieser browser-use-Version nicht unterstuetzt - wird ignoriert.")
+                    del agent_kwargs[option]
+                    entfernt = True
+                    break
+            if not entfernt:
+                raise
+
     try:
-        agent = Agent(task=aufgabe, llm=llm, browser=browser)
         ergebnis = await agent.run()
         print("\n=== Quiz abgeschlossen ===")
         print(ergebnis)
