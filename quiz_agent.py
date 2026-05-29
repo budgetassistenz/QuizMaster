@@ -30,28 +30,33 @@ except ImportError as import_fehler:
     sys.exit(1)
 
 # ----------------------------------------------------------------------------
-#  GESCHWINDIGKEITS- / TOKEN-SPAR-EINSTELLUNGEN (alles auf Maximum)
+#  EINSTELLUNGEN: ZUVERLAESSIGKEIT vs. GESCHWINDIGKEIT
 # ----------------------------------------------------------------------------
-# Modell: Haiku ist am schnellsten und guenstigsten.
-# Falls Antworten zu ungenau werden -> auf "claude-sonnet-4-5" zurueckstellen.
-MODELL = "claude-haiku-4-5-20251001"
+# Erfahrung aus den Tests: Haiku + Flash + ohne Vision war zwar blitzschnell,
+# hat das Quiz aber NICHT wirklich geloest, sondern den Abschluss erfunden
+# (browser-use-Richter: "fabricated the results"). Darum stehen die Schalter
+# jetzt auf ZUVERLAESSIG. Erst wenn ein Lauf echt funktioniert, kann man
+# vorsichtig wieder Richtung Speed drehen (siehe Hinweise unten).
 
-# False = KEINE Screenshots, Agent arbeitet nur ueber den DOM/HTML.
-#         -> Deutlich schneller und guenstiger. Nur auf True, wenn visuelle
-#         Inhalte (Bilder) zwingend gebraucht werden.
-USE_VISION = False
+# Sonnet ist genauer und "ehrlicher" als Haiku. Fuer reines Tempo spaeter
+# "claude-haiku-4-5-20251001" testen - aber nur, wenn die Ergebnisse stimmen.
+MODELL = "claude-sonnet-4-5"
 
-# True = "Flash-Modus": ueberspringt internes Nachdenken/Evaluieren.
-#        Maximal schnell + wenig Tokens, kann aber die Qualitaet senken.
-#        Bei falschen Antworten wieder auf False stellen.
-FLASH_MODE = True
+# True = Agent darf Screenshots sehen. WICHTIG: Bei False wollte das Modell
+# trotzdem Screenshots machen -> Absturz. Fuer echtes Lesen/Pruefen des Quiz
+# auf True lassen. (Spart weniger Tokens, liefert aber echte Ergebnisse.)
+USE_VISION = True
+
+# False = Agent denkt vor jeder Aktion nach. Verhindert das "Erfinden" von
+# Ergebnissen. Nur auf True stellen, wenn Tempo wichtiger als Korrektheit ist.
+FLASH_MODE = False
 
 # Mehrere Aktionen pro LLM-Aufruf erlauben -> weniger Hin und Her.
 MAX_ACTIONS_PER_STEP = 4
 
-# Wie viele vergangene Schritte an die KI mitgeschickt werden. Kleiner = weniger
-# Tokens pro Aufruf. browser-use verlangt einen Wert GROESSER als 5 (oder None).
-MAX_HISTORY_ITEMS = 6
+# Anzahl vergangener Schritte im Kontext. None = voller Verlauf (genauer,
+# mehr Tokens). Wert muss None ODER groesser als 5 sein.
+MAX_HISTORY_ITEMS = 10
 # ----------------------------------------------------------------------------
 
 # Optionaler manueller Chromium-Pfad. Standardmaessig leer lassen, damit
@@ -78,18 +83,25 @@ async def main():
     browser = Browser(browser_profile=browser_profile)
 
     aufgabe = f"""
-Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
+Du bist ein gewissenhafter E-Learning-Assistent fuer eine reteach-Kursseite.
+WICHTIG: Erfinde NICHTS. Melde nur, was du wirklich auf dem Bildschirm siehst.
 
 1. Oeffne die Seite: {QUIZ_URL}
-2. Melde dich an mit:
-   - Benutzername: {QUIZ_USERNAME}
-   - Passwort: {QUIZ_PASSWORD}
-3. Starte das Quiz.
-4. Beantworte jede Frage:
-   a) Lies die Frage und alle Optionen vollstaendig.
-   b) Bei Unsicherheit: neuer Tab, Google-Suche, zurueck zum Quiz.
-   c) Beste Antwort waehlen und bestaetigen.
-5. Quiz abschliessen und Ergebnis ausgeben.
+2. Falls ein Login verlangt wird, melde dich an mit Benutzername
+   {QUIZ_USERNAME} und Passwort {QUIZ_PASSWORD}. Bist du bereits angemeldet,
+   fahre einfach fort.
+3. Oeffne den Kurs und arbeite ALLE Lektionen der Reihe nach durch
+   (nicht nur die erste Seite!).
+4. Auf jeder Seite:
+   a) Lies den gesamten Inhalt aufmerksam.
+   b) Erscheint eine Frage mit Auswahlmoeglichkeiten, waehle die richtige
+      Antwort anhand des Lektionsinhalts aus und bestaetige sie.
+   c) Klicke danach auf "Weiter", um zur naechsten Seite zu gelangen.
+5. Wiederhole Schritt 4, bis der Kurs vollstaendig abgeschlossen ist.
+6. Lies am Ende das tatsaechlich angezeigte Ergebnis (z. B. die Prozentzahl)
+   direkt vom Bildschirm ab und gib es woertlich aus. Behaupte NIEMALS einen
+   Abschluss oder ein Ergebnis, das du nicht wirklich gesehen hast. Wenn du
+   stecken bleibst, beschreibe genau, was auf dem Bildschirm zu sehen ist.
 """
 
     # Agent mit Geschwindigkeits-Optionen bauen. Manche Optionen existieren je
