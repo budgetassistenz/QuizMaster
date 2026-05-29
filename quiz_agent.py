@@ -21,7 +21,13 @@ QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 # der bereits 'provider' und 'model_name' besitzt. Damit entfallen alle
 # Pydantic-Hacks (object.__setattr__) UND der Patch in cloud_events.py.
 # NICHT langchain_anthropic verwenden!
-from browser_use import Agent, Browser, BrowserProfile, ChatAnthropic
+try:
+    from browser_use import Agent, Browser, BrowserProfile, ChatAnthropic
+except ImportError as import_fehler:
+    print("FEHLER: browser-use ist nicht (richtig) installiert.")
+    print(f"Details: {import_fehler}")
+    print("\nLOESUNG: Fuehre zuerst 'setup.bat' aus (Doppelklick).")
+    sys.exit(1)
 
 # Modell-ID anpassen, falls Anthropic die Bezeichnung aendert.
 MODELL = "claude-sonnet-4-5"

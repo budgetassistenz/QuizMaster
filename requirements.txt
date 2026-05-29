@@ -1,0 +1,5 @@
+# QuizMaster Abhaengigkeiten
+# browser-use bringt playwright UND anthropic als Abhaengigkeiten selbst mit
+# und enthaelt den nativen ChatAnthropic-Wrapper. KEIN langchain noetig!
+browser-use==0.12.9
+python-dotenv
