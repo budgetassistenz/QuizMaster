@@ -21,11 +21,15 @@ from langchain_anthropic import ChatAnthropic as _ChatAnthropic
 from browser_use import Agent, Browser, BrowserProfile
 
 
-# Fix: neuere browser-use Versionen erwarten llm.provider
+# Fix: neuere browser-use Versionen erwarten llm.provider und llm.model_name
 class ChatAnthropic(_ChatAnthropic):
     @property
     def provider(self):
         return "anthropic"
+
+    @property
+    def model_name(self):
+        return self.model
 
 
 async def main():
