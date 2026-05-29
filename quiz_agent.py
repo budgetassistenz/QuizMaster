@@ -10,7 +10,6 @@ PFLICHTFELDER = ["ANTHROPIC_API_KEY", "QUIZ_URL", "QUIZ_USERNAME", "QUIZ_PASSWOR
 fehlende = [f for f in PFLICHTFELDER if not os.getenv(f)]
 if fehlende:
     print(f"FEHLER: Folgende Variablen fehlen in der .env-Datei: {', '.join(fehlende)}")
-    print("Bitte .env oeffnen und alle Werte eintragen.")
     sys.exit(1)
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
@@ -18,8 +17,15 @@ QUIZ_URL          = os.getenv("QUIZ_URL")
 QUIZ_USERNAME     = os.getenv("QUIZ_USERNAME")
 QUIZ_PASSWORD     = os.getenv("QUIZ_PASSWORD")
 
-from langchain_anthropic import ChatAnthropic
-from browser_use import Agent, Browser, BrowserConfig
+from langchain_anthropic import ChatAnthropic as _ChatAnthropic
+from browser_use import Agent, Browser, BrowserProfile
+
+
+# Fix: neuere browser-use Versionen erwarten llm.provider
+class ChatAnthropic(_ChatAnthropic):
+    @property
+    def provider(self):
+        return "anthropic"
 
 
 async def main():
@@ -30,11 +36,8 @@ async def main():
         anthropic_api_key=ANTHROPIC_API_KEY,
     )
 
-    browser_config = BrowserConfig(
-        headless=False,
-        chrome_instance_path=r"C:\Users\flori\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe",
-    )
-    browser = Browser(config=browser_config)
+    browser_profile = BrowserProfile(headless=False)
+    browser = Browser(browser_profile=browser_profile)
 
     aufgabe = f"""
 Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
@@ -57,7 +60,7 @@ Du bist ein Quiz-Assistent. Fuehre folgende Schritte genau aus:
         print("\n=== Quiz abgeschlossen ===")
         print(ergebnis)
     except Exception as e:
-        print(f"\nFEHLER beim Ausfuehren des Agenten: {e}")
+        print(f"\nFEHLER: {e}")
         raise
     finally:
         await browser.close()
