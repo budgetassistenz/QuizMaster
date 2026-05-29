@@ -33,16 +33,16 @@ except ImportError as import_fehler:
 #  EIN SCHALTER FUER ALLES
 # ----------------------------------------------------------------------------
 #   True  = SCHNELL & GUENSTIG (Haiku + Flash, ohne Vision).
-#           Ideal fuer einfache "Durchklick"-Kurse wie diesen reteach-Kurs,
-#           wo man nur Lektionen ansehen und "Weiter" klicken muss.
-#           -> minimale Tokens, hohes Tempo.
-#           Achtung: Der Agent kann Inhalte "erraten" und seinen Bericht
-#           ausschmuecken. Fuer echte Wissensfragen weniger zuverlaessig.
+#           minimale Tokens, hohes Tempo. ABER: Im Test hat der Agent den Kurs
+#           NICHT wirklich bearbeitet, sondern den Abschluss nur erfunden.
+#           Nur fuer triviale Klick-Kurse und nur, wenn du das Ergebnis selbst
+#           im Dashboard nachpruefst.
 #
-#   False = ZUVERLAESSIG (Sonnet + Vision, ohne Flash).
-#           Langsamer und teurer, liest und prueft wirklich jede Seite.
-#           Nimm dies fuer Kurse mit echten, benoteten Fragen.
-SPEED_MODE = True
+#   False = ZUVERLAESSIG (Sonnet + Vision, ohne Flash).  <-- EMPFOHLEN
+#           Langsamer und teurer, aber der Agent arbeitet jede Lektion wirklich
+#           durch und erfindet nichts. Das willst du, wenn der Agent den Kurs
+#           tatsaechlich selbst machen soll.
+SPEED_MODE = False
 # ----------------------------------------------------------------------------
 
 if SPEED_MODE:
