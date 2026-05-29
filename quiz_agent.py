@@ -32,7 +32,10 @@ async def main():
     object.__setattr__(llm, 'provider', 'anthropic')
     object.__setattr__(llm, 'model_name', 'claude-sonnet-4-5')
 
-    browser_profile = BrowserProfile(headless=False)
+    browser_profile = BrowserProfile(
+        headless=False,
+        executable_path=r"C:\Users\flori\AppData\Local\ms-playwright\chromium-1223\chrome-win64\chrome.exe",
+    )
     browser = Browser(browser_profile=browser_profile)
 
     aufgabe = f"""
